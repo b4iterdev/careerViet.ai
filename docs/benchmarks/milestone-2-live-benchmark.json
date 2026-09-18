@@ -1,0 +1,114 @@
+{
+  "benchmark": "milestone-2-live-http-ingestion",
+  "started_at_utc": "2026-09-18T09:55:57.902031+00:00",
+  "finished_at_utc": "2026-09-18T09:56:00.567416+00:00",
+  "max_requests_total": 12,
+  "policy": "bounded public HTTPS only; no credentials, browser, bypass, submissions, or invented payloads",
+  "sources": {
+    "itviec_policy": {
+      "state": "success",
+      "message": "robots and terms observed",
+      "requests": 3,
+      "status_codes": [
+        200,
+        200,
+        200
+      ],
+      "bytes": 513888,
+      "latency_ms": 784,
+      "evidence": [
+        {
+          "url": "https://itviec.com/robots.txt",
+          "final_url": "https://itviec.com/robots.txt",
+          "status_code": 200,
+          "content_type": "text/plain",
+          "retrieved_at": "2026-09-18T09:55:58.247909Z",
+          "latency_ms": 285,
+          "bytes_received": 169,
+          "state": "observed",
+          "content_sha256": "7285e013640c362073ec36923fabf2d85a881f1fa6ee4db064e3416e5168d2de",
+          "excerpt": "# Allow all bots to crawl the entire site except one page User-Agent: * Disallow: /subscriptions/new User-Agent: * Allow: / Sitemap: https://itviec.com/dunggiatminh.xml"
+        },
+        {
+          "url": "https://itviec.com/it-jobs/c-plus-plus/ha-noi",
+          "final_url": "https://itviec.com/it-jobs/c-plus-plus/ha-noi",
+          "status_code": 200,
+          "content_type": "text/html; charset=utf-8",
+          "retrieved_at": "2026-09-18T09:55:58.648405Z",
+          "latency_ms": 398,
+          "bytes_received": 372327,
+          "state": "observed",
+          "content_sha256": "30dccbb59519dd373fc20afda31962f115533f302c70aa36bab1ab340c98cf19",
+          "excerpt": "c plus plus Jobs in Ha Noi | ITviec NEW Explore outstanding Cloud & Infrastructure jobs. See now IT Jobs Jobs by Segment Việc làm Cloud & Infrastructure Việc làm AI, Data Jobs by Skill Java PHP JavaScript HTML5 Manager SQL Android iOS MySQL Tester English Ruby Python Mobile Apps Ruby on Rails QA QC Database .NET Business Analyst Linux Team Leader NodeJS System Engineer Designer UI-UX Project Manager OOP Oracle MVC ReactJS Embedded J2EE View all Jobs by skill Jobs by Expertise Backend Developer F"
+        },
+        {
+          "url": "https://itviec.com/blog/terms-and-conditions/",
+          "final_url": "https://itviec.com/blog/terms-and-conditions/",
+          "status_code": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "retrieved_at": "2026-09-18T09:55:58.858747Z",
+          "latency_ms": 101,
+          "bytes_received": 141392,
+          "state": "observed",
+          "content_sha256": "8b3400c8e55954b6d9f3c15c867c225f31a78aec64e95c26aa0491ca1e01619a",
+          "excerpt": "Terms & Conditions - ITviec Blog Chuyển đến phần nội dung Việc Làm IT Việc làm IT theo kỹ năng Việc làm IT theo cấp bậc Việc làm IT theo công ty Việc làm IT theo thành phố Sự nghiệp IT Ứng tuyển & Thăng tiến Chuyên môn IT Chuyện IT Việc Làm IT Việc làm IT theo kỹ năng Việc làm IT theo cấp bậc Việc làm IT theo công ty Việc làm IT theo thành phố Sự nghiệp IT Ứng tuyển & Thăng tiến Chuyên môn IT Chuyện IT Menu Ngày cập nhật: 08/12/2025 Ngày xuất bản: 04/11/2014 Terms & Conditions Effective Date: 1 "
+        }
+      ]
+    },
+    "itviec_search": {
+      "state": "success",
+      "message": null,
+      "requests": 3,
+      "status_codes": [
+        200,
+        200,
+        200
+      ],
+      "bytes": 1068821,
+      "latency_ms": 1360,
+      "extracted_unique_count": 2,
+      "missing_required_fields": 0,
+      "duplicates": 0,
+      "cache_hits": 0,
+      "filtered_count": 0
+    },
+    "vietnamworks_policy": {
+      "state": "policy_unverified",
+      "message": "robots unavailable",
+      "requests": 1,
+      "status_codes": [
+        404
+      ],
+      "bytes": 48,
+      "latency_ms": 93,
+      "evidence": [
+        {
+          "url": "https://ms.vietnamworks.com/robots.txt",
+          "final_url": "https://ms.vietnamworks.com/robots.txt",
+          "status_code": 404,
+          "content_type": "text/plain",
+          "retrieved_at": "2026-09-18T09:56:00.566040Z",
+          "latency_ms": 93,
+          "bytes_received": 48,
+          "state": "observed",
+          "content_sha256": "9e101ce39f5780da66fc34fa22be4718e4949e140c6225550960147585698207",
+          "excerpt": "{\"message\":\"no route matched with those values\"}"
+        }
+      ]
+    },
+    "vietnamworks_search": {
+      "state": "unsupported",
+      "message": "VietnamWorks live POST payload provenance is unavailable; no payload was fabricated.",
+      "requests": 0,
+      "status_codes": [],
+      "bytes": 0,
+      "latency_ms": 0,
+      "extracted_unique_count": 0,
+      "missing_required_fields": 0,
+      "duplicates": 0,
+      "cache_hits": 0,
+      "filtered_count": 0
+    }
+  },
+  "total_requests": 7
+}

@@ -1,0 +1,32 @@
+{
+  "meta": {"page": 1, "totalPages": 1},
+  "data": [
+    {
+      "jobTitle": "Senior C++/C# Engineer",
+      "companyName": "VietnamWorks Example",
+      "location": "Hà Nội",
+      "jobDescription": "Build desktop tools with C++ and C# for internal users.",
+      "jobRequirement": "Strong C++17, C#, and Vietnamese communication.",
+      "jobUrl": "https://www.vietnamworks.com/senior-cpp-csharp-engineer-1",
+      "salary": "Thỏa thuận"
+    },
+    {
+      "jobTitle": "C Developer",
+      "companyName": "Embedded Example",
+      "location": "Hà Nội",
+      "jobDescription": "Maintain C firmware only.",
+      "jobRequirement": "C language.",
+      "jobUrl": "https://www.vietnamworks.com/c-developer-2",
+      "salary": "Hidden"
+    },
+    {
+      "jobTitle": "Java Engineer",
+      "companyName": "Backend Example",
+      "location": "Đà Nẵng",
+      "jobDescription": "Build Java services.",
+      "jobRequirement": "Java and Spring.",
+      "jobUrl": "https://www.vietnamworks.com/java-engineer-3",
+      "salary": "Negotiable"
+    }
+  ]
+}

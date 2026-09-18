@@ -1,0 +1,8 @@
+Tiêu đề: Lập trình viên C++/C#
+Công ty: Công ty Ví dụ
+Địa điểm: Thành phố Hồ Chí Minh
+Loại hình: Toàn thời gian
+Lương: Chưa rõ
+
+Mô tả: Xây dựng công cụ nội bộ bằng C++ và C# cho đội vận hành tại Việt Nam.
+Yêu cầu: Ứng viên giao tiếp tiếng Việt rõ ràng.

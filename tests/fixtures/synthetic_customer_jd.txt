@@ -1,0 +1,8 @@
+Tiêu đề: Nhân viên chăm sóc khách hàng
+Công ty: Công ty Dịch vụ Ví dụ
+Địa điểm: Hà Nội
+Loại hình: Thực tập
+Lương: Chưa rõ
+
+Mô tả: Hỗ trợ khách hàng Việt Nam qua điện thoại.
+Yêu cầu: Giao tiếp tiếng Việt tốt, làm việc theo ca.

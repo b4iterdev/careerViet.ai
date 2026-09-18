@@ -1,0 +1,23 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
+data/
+output/
+*.sqlite3
+*.db
+.env
+.env.*
+!.env.example
+secrets.*
+
+# Agent and temporary run artifacts
+.hermes/
+.omo/
+.tmp-smoke/
+AGENTS.md
+specs/
+docs/hermes-review-m2.md
+docs/milestone-2-verification.md
+docs/reviewer-discovery.md
