@@ -81,14 +81,64 @@ uv run careerviet --workspace data profile validation
 uv run careerviet --workspace data doctor
 ```
 
+## Milestone 3: Profile Onboarding & Grounded Evaluation
+
+Milestone 3 implements conversational profile onboarding, immutable evidence profiles, deterministic constraint triage, and dual-runtime evaluation contracts (CLI agent packet export/import and direct OpenAI-compatible provider evaluation).
+
+### Conversational Onboarding CLI
+
+Start or resume onboarding questions one at a time:
+
+```bash
+uv run careerviet --workspace data profile answer --draft-id draft-1 --text "Synthetic candidate, contact private, based in Ha Noi."
+```
+
+Review draft status and correct specific fields:
+
+```bash
+uv run careerviet --workspace data profile review --draft-id draft-1
+uv run careerviet --workspace data profile correct --draft-id draft-1 --field preferences --text "Preferences: Ha Noi, remote yes."
+```
+
+Explicitly confirm draft to store an immutable versioned profile:
+
+```bash
+uv run careerviet --workspace data profile confirm --draft-id draft-1
+```
+
+### Deterministic Constraint Triage
+
+Check hard constraints (location, compensation floors, engagement type) before spending model evaluation:
+
+```bash
+uv run careerviet --workspace data evaluate triage <job_id>
+```
+
+### Dual-Runtime Evaluation
+
+Export privacy-redacted evaluation packet (omits candidate identity, binds canonical hashes, requires `--consent`):
+
+```bash
+uv run careerviet --workspace data evaluate export-packet <job_id> --profile-version <version> --output packet.json --consent
+```
+
+Import and validate candidate-grounded evaluation report:
+
+```bash
+uv run careerviet --workspace data evaluate import-report --packet packet.json --response report.json
+```
+
+Direct OpenAI-compatible evaluation is also available programmatically via `run_direct_provider_evaluation` with `EvaluationProviderConfig.from_env()`.
+
 ## Current Scope
 
-Milestone 1 implements only local manual text/file JD import, Pydantic contracts, SQLite persistence with provenance, internal dedupe, and CLI inspection commands. Imported jobs are stored as `discovered` and are never marked applied.
+Milestones 1 through 3 implement:
+1. Local manual text/file JD import, Pydantic contracts, SQLite persistence with provenance, and stable dedupe.
+2. Bounded public HTTP ingestion for ITviec and VietnamWorks with robots/terms checks and offline fixture modes.
+3. Conversational candidate onboarding, versioned profiles, deterministic triage, and privacy-grounded dual-runtime JD evaluation contracts.
 
-JD deduplication uses a normalized content hash that is independent of the source path or paste identity. Normalization trims surrounding whitespace and ignores trailing spaces at line ends; it does not rewrite punctuation, casing, accents, Unicode forms, wording, line order, or semantically equivalent ads. Each import attempt is retained as a local source observation with its source identity, timestamp, and raw text.
+Imported jobs remain in discovered/evaluated state and are never automatically marked applied or submitted externally.
 
 ## Limitations
 
-Manual JD parsing is label-based and conservative. It recognizes common Vietnamese labels such as `Tiêu đề`, `Công ty`, `Địa điểm`, `Mô tả công việc`, `Yêu cầu công việc`, `Quyền lợi`, and `Lương`; unrecognized prose is retained as unparsed freeform text rather than treated as reliably extracted facts. Salary parsing distinguishes unknown, hidden, negotiable, and explicit zero salary, but it does not infer ambiguous amounts, currency, period, or gross/net status.
-
-No LLM/provider calls, CV rendering, application drafting, application sending, tax calculations, credentials, browser automation, CAPTCHA/WAF bypass, or external submissions are implemented. Manual import remains available as the fallback when HTTP sources are blocked, unverified, unsupported, or schema-changed.
+No CV rendering, application drafting/sending, mass scraping, or automatic submissions are implemented in milestone 3. Live direct-provider calls require explicit user consent and secure environment configuration.

@@ -1,3 +1,4 @@
+import hashlib
 import json
 import sqlite3
 from datetime import datetime
@@ -5,6 +6,7 @@ from pathlib import Path
 from typing import cast
 
 from ..models.job import Job
+from ..models.profile import CandidateProfile
 
 
 class CareerRepository:
@@ -71,6 +73,41 @@ class CareerRepository:
                     raw_content text not null,
                     created_at text not null default current_timestamp,
                     unique (job_id, source_identity, retrieved_at, raw_content)
+                )
+                """
+            )
+            _ = connection.execute(
+                """
+                create table if not exists profile_drafts (
+                    draft_id text primary key,
+                    payload_json text not null,
+                    updated_at text not null default current_timestamp
+                )
+                """
+            )
+            _ = connection.execute(
+                """
+                create table if not exists profiles (
+                    profile_id text not null,
+                    version text primary key,
+                    payload_json text not null,
+                    content_hash text not null,
+                    confirmed_at text not null,
+                    created_at text not null default current_timestamp
+                )
+                """
+            )
+            _ = connection.execute(
+                """
+                create table if not exists evaluation_reports (
+                    report_id text primary key,
+                    profile_version text not null,
+                    job_id text not null,
+                    jd_content_hash text not null,
+                    runtime text not null,
+                    model text not null,
+                    payload_json text not null,
+                    created_at text not null default current_timestamp
                 )
                 """
             )
@@ -182,16 +219,134 @@ class CareerRepository:
         with self.connect() as connection:
             foreign_keys_row = cast(sqlite3.Row, connection.execute("pragma foreign_keys").fetchone())
             job_count_row = cast(sqlite3.Row, connection.execute("select count(*) from jobs").fetchone())
+            draft_count_row = cast(sqlite3.Row, connection.execute("select count(*) from profile_drafts").fetchone())
+            profile_count_row = cast(sqlite3.Row, connection.execute("select count(*) from profiles").fetchone())
+            report_count_row = cast(sqlite3.Row, connection.execute("select count(*) from evaluation_reports").fetchone())
             foreign_keys = cast(int, foreign_keys_row[0])
             job_count = cast(int, job_count_row[0])
+            draft_count = cast(int, draft_count_row[0])
+            profile_count = cast(int, profile_count_row[0])
+            report_count = cast(int, report_count_row[0])
         return {
             "database": "ok",
             "foreign_keys": "on" if foreign_keys == 1 else "off",
             "jobs": str(job_count),
+            "profile_drafts": str(draft_count),
+            "profiles": str(profile_count),
+            "evaluation_reports": str(report_count),
         }
 
     def profile_exists(self) -> bool:
         return self.profile_path.exists()
+
+    def save_profile_draft(self, draft_id: str, payload: dict[str, object]) -> None:
+        self.initialize()
+        payload_json = json.dumps(payload, ensure_ascii=False, sort_keys=True)
+        with self.connect() as connection:
+            _ = connection.execute(
+                """
+                insert into profile_drafts (draft_id, payload_json, updated_at)
+                values (?, ?, current_timestamp)
+                on conflict(draft_id) do update set
+                    payload_json = excluded.payload_json,
+                    updated_at = current_timestamp
+                """,
+                (draft_id, payload_json),
+            )
+
+    def load_profile_draft(self, draft_id: str) -> dict[str, object] | None:
+        self.initialize()
+        with self.connect() as connection:
+            row = cast(
+                sqlite3.Row | None,
+                connection.execute(
+                    "select payload_json from profile_drafts where draft_id = ?", (draft_id,)
+                ).fetchone(),
+            )
+        if row is None:
+            return None
+        return cast(dict[str, object], json.loads(cast(str, row["payload_json"])))
+
+    def save_confirmed_profile(self, profile: CandidateProfile) -> None:
+        self.initialize()
+        if profile.confirmed_at is None:
+            raise ValueError("confirmed profile requires confirmed_at")
+        payload_json = profile.model_dump_json()
+        content_hash = hashlib.sha256(payload_json.encode()).hexdigest()
+        with self.connect() as connection:
+            existing = connection.execute(
+                "select version from profiles where version = ?", (profile.version,)
+            ).fetchone()
+            if existing is not None:
+                raise ValueError("confirmed profile versions are immutable")
+            _ = connection.execute(
+                """
+                insert into profiles (profile_id, version, payload_json, content_hash, confirmed_at)
+                values (?, ?, ?, ?, ?)
+                """,
+                (
+                    profile.profile_id,
+                    profile.version,
+                    payload_json,
+                    content_hash,
+                    profile.confirmed_at.isoformat(),
+                ),
+            )
+
+    def get_profile_version(self, version: str) -> CandidateProfile | None:
+        self.initialize()
+        with self.connect() as connection:
+            row = cast(
+                sqlite3.Row | None,
+                connection.execute("select payload_json from profiles where version = ?", (version,)).fetchone(),
+            )
+        if row is None:
+            return None
+        return CandidateProfile.model_validate_json(cast(str, row["payload_json"]))
+
+    def get_latest_profile(self) -> CandidateProfile | None:
+        self.initialize()
+        with self.connect() as connection:
+            row = cast(
+                sqlite3.Row | None,
+                connection.execute(
+                    "select payload_json from profiles order by created_at desc, version desc limit 1"
+                ).fetchone(),
+            )
+        if row is None:
+            return None
+        return CandidateProfile.model_validate_json(cast(str, row["payload_json"]))
+
+    def save_evaluation_report(
+        self,
+        *,
+        report_id: str,
+        profile_version: str,
+        job_id: str,
+        jd_content_hash: str,
+        runtime: str,
+        model: str,
+        payload_json: str,
+    ) -> None:
+        self.initialize()
+        with self.connect() as connection:
+            _ = connection.execute(
+                """
+                insert into evaluation_reports (
+                    report_id, profile_version, job_id, jd_content_hash, runtime, model, payload_json
+                ) values (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (report_id, profile_version, job_id, jd_content_hash, runtime, model, payload_json),
+            )
+
+    def count_evaluation_reports(self) -> int:
+        self.initialize()
+        with self.connect() as connection:
+            row = cast(
+                sqlite3.Row,
+                connection.execute("select count(*) from evaluation_reports").fetchone(),
+            )
+        return cast(int, row[0])
 
     def _job_from_row(self, row: sqlite3.Row) -> Job:
         from ..models.job import EmploymentType, Salary, SourceProvenance

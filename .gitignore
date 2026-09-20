@@ -5,6 +5,7 @@ __pycache__/
 *.pyc
 data/
 output/
+dist/
 *.sqlite3
 *.db
 .env
