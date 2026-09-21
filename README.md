@@ -1,6 +1,6 @@
 # careerViet.ai
 
-Local-first CLI foundation for milestone 1: manual job-description import, stable deduplication, SQLite persistence, and inspectable Typer commands.
+Local-first CLI for job import, evidence-grounded profiles and evaluations, reviewed CV PDF export, and local application drafts.
 
 ## Setup
 
@@ -130,15 +130,122 @@ uv run careerviet --workspace data evaluate import-report --packet packet.json -
 
 Direct OpenAI-compatible evaluation is also available programmatically via `run_direct_provider_evaluation` with `EvaluationProviderConfig.from_env()`.
 
+## Milestone 4: Reviewed CVs and Local Application Drafts
+
+M4 adds immutable SQLite CV revisions and explicit hash-bound approval, EN/VI PDF export,
+CLI-agent/direct-provider tailoring proposals, and local email/form drafts. No applications
+are sent. Every generated document remains separate from the application tracker.
+
+### Create, review, approve, export
+
+Use a **confirmed** profile version and its actual evidence IDs (shown by the profile workflow).
+Replace the uppercase placeholders below. Repeat `--evidence` to select multiple items.
+Omit `--job-id` for a general CV; add it to bind the CV to a stored job.
+
+```bash
+uv run careerviet --workspace data cv create --profile-version VERSION --evidence EVIDENCE_ID --language vi --identity name
+uv run careerviet --workspace data cv list
+uv run careerviet --workspace data cv review CV_ID
+uv run careerviet --workspace data cv approve CV_ID --hash EXACT_REVIEW_HASH
+uv run careerviet --workspace data cv export CV_ID --output /tmp/new-cv-bundle --max-pages 2
+```
+
+Export contains `cv.pdf` and `cv.json`. Output directories must not already exist, and their
+parent must exist. The renderer fails rather than silently shortening content to meet the page
+budget. `--max-pages` supports 1–10, default 2. The single-column A4 layout uses bundled,
+embedded Noto Sans with Vietnamese glyphs. Unsupported glyphs fail clearly. It uses ReportLab
+rather than requiring a separate Typst compiler; all candidate strings are escaped data.
+No universal ATS compatibility claim is made.
+
+**Language and truthfulness:** `en`/`vi` chooses headings; extractive creation preserves original
+evidence wording and does not pretend to translate it. For translation/tailoring, export a packet
+for a CLI agent or use an explicitly consented provider. Every rewrite is an unapproved proposal.
+Exact quote validation proves provenance, **not semantic truth** or relevance. The candidate must
+review dates, employment/volunteer distinctions, qualifications, metrics and uncertainty before
+approving the exact content hash. Local identity fields are opt-in via repeated `--identity`.
+There is no mandatory photo, DOB, marital status, GitHub or technical-project section.
+
+### Tailoring and translations
+
+```bash
+uv run careerviet --workspace data cv export-packet CV_ID --output /tmp/new-tailoring-packet --consent
+uv run careerviet --workspace data cv import-response CV_ID --response response.json
+uv run careerviet cv skill
+```
+
+The packet contains strict instructions, selected claims, target language, optional JD and a
+canonical hash. A response has only `packet_hash` and `claims`; keep evidence IDs in order and
+preserve exact quote/status/uncertainty. Set `mode` to `proposed` when changing text. Import creates
+a **new unapproved revision**. For manual edits, `cv revise CV_ID --claims claims.json` accepts
+an array of the same claim objects. Re-review and approve the new ID, never the old hash.
+
+Direct-provider mode uses `CAREERVIET_EVAL_ENDPOINT` (complete chat/completions endpoint),
+`CAREERVIET_EVAL_MODEL`, and `CAREERVIET_EVAL_API_KEY` from your securely configured environment:
+
+```bash
+uv run careerviet --workspace data cv provider CV_ID --consent
+```
+
+Configure and inspect the destination/model before consenting. Selected evidence/JD leaves the
+device; separate profile identity fields are omitted, **but personal details embedded in quotes
+are not automatically scrubbed**. Review those before export/transmission. Provider output uses
+the same canonical import checks and remains unapproved. HTTPS required; loopback HTTP requires
+`CAREERVIET_EVAL_ALLOW_LOOPBACK_HTTP=1` for local testing. Requests do not follow redirects and
+response bytes/time are bounded. No live production provider has been verified for M4; tests
+cover synthetic mocks and a real loopback HTTP server.
+
+### Local email/form drafts
+
+Subject and application route must be supplied exactly by the user/from the employer's instructions.
+The selected approved CV controls language and candidate wording. Drafts do not attach a CV or send anything.
+
+```bash
+uv run careerviet --workspace data draft create CV_ID --job-id JOB_ID --subject 'EXACT SUBJECT' --route 'EXACT APPLICATION ROUTE' --questions questions.json
+uv run careerviet --workspace data draft review DRAFT_ID
+uv run careerviet --workspace data draft approve DRAFT_ID --hash EXACT_REVIEW_HASH
+uv run careerviet --workspace data draft export DRAFT_ID --output /tmp/new-application-bundle
+```
+
+`--questions` is optional. Its format is:
+
+```json
+{"questions": ["Relevant experience?", "Available start date?"], "answers": {"0": "EVIDENCE_ID"}}
+```
+
+Answer keys are zero-based question indexes; values select approved CV evidence text. Unknown
+answers remain `[UNANSWERED]`, not inferred. Quote existence does not prove question relevance;
+review that explicitly. To change answers/subject/route create another immutable draft. Freeform
+answer composition is deliberately limited to reviewed CV wording; revise the CV first if needed.
+Exports contain `email.txt`, `form.txt`, `application.json`, and `README.txt` with route/warnings.
+Profile/CV/JD hashes persist with each draft; stale canonical inputs block approval/export.
+
+### Reproducible synthetic smoke
+
+```bash
+uv run pytest -q
+uv run ruff check .
+uv run python scripts/run_m4_smoke.py
+uv build
+```
+
+The smoke uses only a new OS temporary workspace and prints its retained EN/VI PDF, preview image
+and application bundle locations. It exercises separate real CLI processes, text extraction,
+page count, text bounding boxes, unanswered questions and the unchanged `applied` flag.
+Synthetic examples are demonstrations, not real candidates or job opportunities.
+
 ## Current Scope
 
-Milestones 1 through 3 implement:
+Milestones 1 through 4 implement:
 1. Local manual text/file JD import, Pydantic contracts, SQLite persistence with provenance, and stable dedupe.
 2. Bounded public HTTP ingestion for ITviec and VietnamWorks with robots/terms checks and offline fixture modes.
 3. Conversational candidate onboarding, versioned profiles, deterministic triage, and privacy-grounded dual-runtime JD evaluation contracts.
+4. Reviewed CV PDF/JSON bundles, tailoring proposals, and local email/form application drafts.
 
-Imported jobs remain in discovered/evaluated state and are never automatically marked applied or submitted externally.
+Imported jobs are never automatically marked applied or submitted externally.
 
 ## Limitations
 
-No CV rendering, application drafting/sending, mass scraping, or automatic submissions are implemented in milestone 3. Live direct-provider calls require explicit user consent and secure environment configuration.
+Application tracking, sending, web dashboard, legal calculations and additional source coverage
+remain deferred. The local workspace database is not encrypted at rest; protect its directory
+and backups. Existing ingestion restrictions remain. Automatic translation is not part of the
+extractive path, and generative factual correctness always requires human review.

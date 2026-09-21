@@ -5,6 +5,7 @@ from typing import Annotated, cast
 import typer
 from pydantic import ValidationError
 
+from .cv_cli import cv_app, draft_app
 from .ingestion.itviec import fixture_client_for_itviec, search_itviec
 from .ingestion.manual import import_jd_file_with_status, import_jd_text_with_status
 from .ingestion.results import SourceResult
@@ -20,6 +21,8 @@ evaluate_app = typer.Typer(no_args_is_help=True)
 app.add_typer(jobs_app, name="jobs")
 app.add_typer(profile_app, name="profile")
 app.add_typer(evaluate_app, name="evaluate")
+app.add_typer(cv_app, name="cv")
+app.add_typer(draft_app, name="draft")
 
 
 @app.callback()
