@@ -9,11 +9,11 @@ from typing import cast
 
 import httpx
 
-from careerviet.ingestion.http_client import SafeHttpClient
-from careerviet.ingestion.itviec import search_itviec
-from careerviet.ingestion.results import SourceResult
-from careerviet.ingestion.source_policy import discover_source_policy
-from careerviet.ingestion.vietnamworks import AUTHORIZED_SEARCH_URL, search_vietnamworks
+from mocnghe.ingestion.http_client import SafeHttpClient
+from mocnghe.ingestion.itviec import search_itviec
+from mocnghe.ingestion.results import SourceResult
+from mocnghe.ingestion.source_policy import discover_source_policy
+from mocnghe.ingestion.vietnamworks import AUTHORIZED_SEARCH_URL, search_vietnamworks
 
 ITVIEC_URL = "https://itviec.com/it-jobs/c-plus-plus/ha-noi"
 MAX_REQUESTS = 12

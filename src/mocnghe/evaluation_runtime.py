@@ -79,12 +79,15 @@ class EvaluationProviderConfig(BaseModel):
 
     @classmethod
     def from_env(cls, env: Mapping[str, str]) -> "EvaluationProviderConfig":
-        endpoint = env.get("CAREERVIET_EVAL_ENDPOINT")
-        model = env.get("CAREERVIET_EVAL_MODEL")
-        api_key = env.get("CAREERVIET_EVAL_API_KEY")
+        # Select one namespace atomically: never send a legacy key to a new endpoint.
+        fields = ("ENDPOINT", "MODEL", "API_KEY", "ALLOW_LOOPBACK_HTTP")
+        prefix = "MOCNGHE" if any(f"MOCNGHE_EVAL_{key}" in env for key in fields) else "CAREERVIET"
+        endpoint = env.get(f"{prefix}_EVAL_ENDPOINT")
+        model = env.get(f"{prefix}_EVAL_MODEL")
+        api_key = env.get(f"{prefix}_EVAL_API_KEY")
         if not endpoint or not model or not api_key:
             raise ValueError("provider configuration requires endpoint, model, and api key environment values")
-        allow_loopback_http = env.get("CAREERVIET_EVAL_ALLOW_LOOPBACK_HTTP") == "1"
+        allow_loopback_http = env.get(f"{prefix}_EVAL_ALLOW_LOOPBACK_HTTP") == "1"
         config = cls(
             endpoint=endpoint,
             model=model,

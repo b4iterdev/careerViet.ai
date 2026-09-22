@@ -2,10 +2,10 @@
 import hashlib
 from pathlib import Path
 
-from careerviet.models.job import EmploymentType, Job, Salary, SalaryKind, SourceProvenance
-from careerviet.onboarding import OnboardingAnswer, ProfileOnboarding
-from careerviet.storage.repository import CareerRepository
-from careerviet.triage import triage_job
+from mocnghe.models.job import EmploymentType, Job, Salary, SalaryKind, SourceProvenance
+from mocnghe.onboarding import OnboardingAnswer, ProfileOnboarding
+from mocnghe.storage.repository import CareerRepository
+from mocnghe.triage import triage_job
 
 
 def test_three_synthetic_occupations_onboarding_and_triage(tmp_path: Path) -> None:

@@ -1,7 +1,7 @@
 [project]
-name = "careerviet"
+name = "mocnghe"
 version = "0.1.0"
-description = "Local-first CareerViet.ai CLI foundation"
+description = "Local-first Mốc Nghề CLI foundation"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-careerviet = "careerviet.cli:app"
+mocnghe = "mocnghe.cli:app"
 
 [dependency-groups]
 dev = [
@@ -35,4 +35,4 @@ line-length = 100
 target-version = "py312"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/careerviet"]
+packages = ["src/mocnghe"]

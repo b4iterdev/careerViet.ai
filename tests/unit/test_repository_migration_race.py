@@ -1,8 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 
-from careerviet.applications.tracker import ApplicationTracker
-from careerviet.storage.repository import CareerRepository
+from mocnghe.applications.tracker import ApplicationTracker
+from mocnghe.storage.repository import CareerRepository
 
 
 def test_repository_locks_before_schema_migration(tmp_path, monkeypatch):

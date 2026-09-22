@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from careerviet.onboarding import OnboardingAnswer, ProfileOnboarding
-from careerviet.storage.repository import CareerRepository
+from mocnghe.onboarding import OnboardingAnswer, ProfileOnboarding
+from mocnghe.storage.repository import CareerRepository
 
 
 def test_onboarding_resumes_review_corrects_and_confirms_immutable_profile(tmp_path: Path) -> None:

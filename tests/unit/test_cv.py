@@ -1,10 +1,10 @@
 import pytest
 
-from careerviet.storage.repository import CareerRepository
+from mocnghe.storage.repository import CareerRepository
 
 
 def test_create_persist_and_approve(repo):
-    from careerviet.cv import CVService
+    from mocnghe.cv import CVService
     s = CVService(repo)
     cv = s.create("v1", ["ev1"], language="vi")
     assert cv.claims[0].text == "Tình nguyện hỗ trợ khách hàng."
@@ -18,7 +18,7 @@ def test_create_persist_and_approve(repo):
 
 
 def test_revision_invalidates_approval_and_rejects_fabricated_quotes(repo):
-    from careerviet.cv import CVService
+    from mocnghe.cv import CVService
     s = CVService(repo)
     cv = s.create("v1", ["ev1"], language="en")
     s.approve(cv.id, s.content_hash(cv))
@@ -35,7 +35,7 @@ def test_revision_invalidates_approval_and_rejects_fabricated_quotes(repo):
 
 @pytest.mark.parametrize("ids", [["missing"], ["ev1", "ev1"], []])
 def test_invalid_selection(repo, ids):
-    from careerviet.cv import CVService
+    from mocnghe.cv import CVService
     with pytest.raises(ValueError):
         CVService(repo).create("v1", ids, language="vi")
 
@@ -43,8 +43,8 @@ def test_invalid_selection(repo, ids):
 def test_render_review_gate_accents_and_collision(repo, tmp_path):
     from pypdf import PdfReader
 
-    from careerviet.cv import CVService
-    from careerviet.cv_render import export_cv
+    from mocnghe.cv import CVService
+    from mocnghe.cv_render import export_cv
     s = CVService(repo)
     cv = s.create("v1", ["ev1"], language="vi", identity_keys=["name"])
     target = tmp_path / "bundle"
@@ -64,7 +64,7 @@ def test_render_review_gate_accents_and_collision(repo, tmp_path):
 
 
 def test_canonical_tampering_rejected(repo):
-    from careerviet.cv import CVService
+    from mocnghe.cv import CVService
     s = CVService(repo)
     cv = s.create("v1", ["ev1"], language="vi")
     with repo.connect() as db:

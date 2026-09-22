@@ -3,12 +3,12 @@ import json
 import httpx
 import pytest
 
-from careerviet.cv import CVService
-from careerviet.evaluation_runtime import EvaluationProviderConfig
+from mocnghe.cv import CVService
+from mocnghe.evaluation_runtime import EvaluationProviderConfig
 
 
 def test_packet_binding_redaction_and_provider(repo):
-    from careerviet.cv_runtime import create_packet, import_response, run_provider
+    from mocnghe.cv_runtime import create_packet, import_response, run_provider
     s = CVService(repo)
     cv = s.create("v1", ["ev1"], language="en", identity_keys=["name", "email"])
     with pytest.raises(PermissionError):

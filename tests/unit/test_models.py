@@ -4,10 +4,10 @@ from datetime import UTC, date, datetime
 import pytest
 from pydantic import ValidationError
 
-from careerviet.models.application import Application, ApplicationState
-from careerviet.models.evaluation import Evaluation, RequirementMatch
-from careerviet.models.job import EmploymentType, Job, Salary, SalaryKind, SourceProvenance
-from careerviet.models.profile import (
+from mocnghe.models.application import Application, ApplicationState
+from mocnghe.models.evaluation import Evaluation, RequirementMatch
+from mocnghe.models.job import EmploymentType, Job, Salary, SalaryKind, SourceProvenance
+from mocnghe.models.profile import (
     CandidateEvidence,
     CandidateProfile,
     EvidenceStatus,

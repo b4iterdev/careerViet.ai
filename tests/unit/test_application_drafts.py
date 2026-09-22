@@ -1,11 +1,11 @@
 import pytest
 
-from careerviet.cv import CVService
-from careerviet.ingestion.manual import import_jd_text_with_status
+from mocnghe.cv import CVService
+from mocnghe.ingestion.manual import import_jd_text_with_status
 
 
 def test_application_grounding_persistence_and_export(repo, tmp_path):
-    from careerviet.application_drafts import ApplicationDraftService
+    from mocnghe.application_drafts import ApplicationDraftService
     job, _ = import_jd_text_with_status(repo, "Tiêu đề: Hỗ trợ khách hàng\nYêu cầu: Giao tiếp",
                                         source_identity="synthetic")
     cvs = CVService(repo)

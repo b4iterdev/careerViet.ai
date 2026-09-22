@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from careerviet.ingestion.results import IngestionState, SourceResult, SourceStats
+from mocnghe.ingestion.results import IngestionState, SourceResult, SourceStats
 
 
 def test_success_and_empty_require_validated_schema() -> None:

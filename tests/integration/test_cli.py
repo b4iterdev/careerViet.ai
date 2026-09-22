@@ -3,7 +3,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from careerviet.cli import app
+from mocnghe.cli import app
 
 
 def test_cli_init_import_twice_list_show_profile_doctor(tmp_path: Path) -> None:

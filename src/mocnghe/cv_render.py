@@ -28,7 +28,7 @@ def publish_bundle(target: Path, contents: dict[str, bytes]):
         raise FileExistsError("output already exists; choose a new directory")
     if not target.parent.is_dir():
         raise ValueError("output parent must exist")
-    with tempfile.TemporaryDirectory(prefix=".careerviet-export-", dir=target.parent) as tmp:
+    with tempfile.TemporaryDirectory(prefix=".mocnghe-export-", dir=target.parent) as tmp:
         staging = Path(tmp)
         for name, data in contents.items():
             if Path(name).name != name or name in {".", ".."}:
@@ -47,9 +47,9 @@ def publish_bundle(target: Path, contents: dict[str, bytes]):
 def render_pdf(cv, max_pages=2):
     if type(max_pages) is not int or not 1 <= max_pages <= 10:
         raise ValueError("page budget must be between 1 and 10")
-    font = "CareerVietNotoSans"
+    font = "MocNgheNotoSans"
     if font not in pdfmetrics.getRegisteredFontNames():
-        pdfmetrics.registerFont(TTFont(font, str(files("careerviet.assets").joinpath(
+        pdfmetrics.registerFont(TTFont(font, str(files("mocnghe.assets").joinpath(
             "fonts/NotoSans-Regular.ttf"))))
     texts = list(cv.identity.values()) + [c.text for c in cv.claims]
     glyphs = pdfmetrics.getFont(font).face.charToGlyph

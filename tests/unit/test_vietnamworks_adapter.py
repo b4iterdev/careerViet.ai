@@ -3,9 +3,9 @@ from pathlib import Path
 
 import httpx
 
-from careerviet.ingestion.http_client import SafeHttpClient
-from careerviet.ingestion.results import IngestionState
-from careerviet.ingestion.vietnamworks import (
+from mocnghe.ingestion.http_client import SafeHttpClient
+from mocnghe.ingestion.results import IngestionState
+from mocnghe.ingestion.vietnamworks import (
     AUTHORIZED_SEARCH_URL,
     parse_vietnamworks_search,
     search_vietnamworks,

@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from careerviet.ingestion.http_client import SafeHttpClient, UnsafeUrlError
+from mocnghe.ingestion.http_client import SafeHttpClient, UnsafeUrlError
 
 
 @pytest.mark.parametrize('address', ['127.0.0.1', '10.0.0.1', '169.254.169.254', '::1',

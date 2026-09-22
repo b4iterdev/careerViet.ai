@@ -3,9 +3,9 @@ import sqlite3
 
 import pytest
 
-from careerviet.applications.tracker import ApplicationTracker
-from careerviet.cv import CVService
-from careerviet.ingestion.manual import import_jd_text_with_status
+from mocnghe.applications.tracker import ApplicationTracker
+from mocnghe.cv import CVService
+from mocnghe.ingestion.manual import import_jd_text_with_status
 
 
 def ready(repo, *, targeted=False):

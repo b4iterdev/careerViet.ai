@@ -1,6 +1,25 @@
-# careerViet.ai
+# Mốc Nghề
 
 Local-first CLI for job import, evidence-grounded profiles and evaluations, reviewed CV PDF export, and local application drafts.
+
+## Naming and existing workspaces
+
+The distribution, Python import package, and console command are now `mocnghe`;
+the display name is **Mốc Nghề**. Use `uv sync` after upgrading and update scripts/imports
+from `careerviet` to `mocnghe`; no legacy command or Python package alias is installed.
+The repository name is `b4iterdev/mocnghe` (local checkout directory: `mocnghe`).
+
+**Storage compatibility:** every workspace continues to use `careerviet.sqlite3`, including
+new workspaces. This intentionally retained legacy filename prevents silently opening a new,
+empty database after the rename. Keep your existing workspace path and `profile.json`;
+no data files need renaming or copying. Back up private workspaces before upgrading.
+
+Configure providers with `MOCNGHE_EVAL_ENDPOINT`, `MOCNGHE_EVAL_MODEL`,
+`MOCNGHE_EVAL_API_KEY`, and optionally `MOCNGHE_EVAL_ALLOW_LOOPBACK_HTTP`.
+Legacy `CAREERVIET_EVAL_*` settings remain supported **only when none of those four new
+variables is present**. Any new setting selects the entire new namespace; incomplete or
+empty required values fail closed. Credentials and loopback permissions are never mixed
+between namespaces, preventing a legacy key from being sent to a newly configured endpoint.
 
 ## Setup
 
@@ -25,13 +44,13 @@ Milestone 2 adds bounded, opt-in public HTTP ingestion for the observed ITviec a
 Search an offline ITviec fixture without importing:
 
 ```bash
-uv run careerviet --workspace /tmp/careerviet-fixture jobs search --source itviec --fixture tests/fixtures/http/itviec_search.html --keyword C++
+uv run mocnghe --workspace /tmp/mocnghe-fixture jobs search --source itviec --fixture tests/fixtures/http/itviec_search.html --keyword C++
 ```
 
 Import matching offline fixture jobs:
 
 ```bash
-uv run careerviet --workspace /tmp/careerviet-fixture jobs ingest --source itviec --fixture tests/fixtures/http/itviec_search.html --keyword C++
+uv run mocnghe --workspace /tmp/mocnghe-fixture jobs ingest --source itviec --fixture tests/fixtures/http/itviec_search.html --keyword C++
 ```
 
 Live use is conservative and bounded. Unknown policy, access restrictions, schema drift, missing VietnamWorks payload provenance, challenges, 403, and 429 responses are reported as structured states rather than treated as empty success. The VietnamWorks adapter supports offline parsing of observed JSON shapes but live POST search remains unsupported until request payload provenance is available.
@@ -49,20 +68,20 @@ The benchmark is limited to 12 total public HTTPS requests and records actual st
 Initialize a workspace:
 
 ```bash
-uv run careerviet --workspace data init
+uv run mocnghe --workspace data init
 ```
 
 Import the same JD twice to verify stable dedupe:
 
 ```bash
-uv run careerviet --workspace data import-jd --file tests/fixtures/synthetic_jd.txt
-uv run careerviet --workspace data import-jd --file tests/fixtures/synthetic_jd.txt
+uv run mocnghe --workspace data import-jd --file tests/fixtures/synthetic_jd.txt
+uv run mocnghe --workspace data import-jd --file tests/fixtures/synthetic_jd.txt
 ```
 
 Paste a JD from standard input instead of reading a file:
 
 ```bash
-uv run careerviet --workspace data import-jd --stdin < tests/fixtures/synthetic_customer_jd.txt
+uv run mocnghe --workspace data import-jd --stdin < tests/fixtures/synthetic_customer_jd.txt
 ```
 
 `--file` and `--stdin` are mutually exclusive.
@@ -70,15 +89,15 @@ uv run careerviet --workspace data import-jd --stdin < tests/fixtures/synthetic_
 List and show persisted jobs:
 
 ```bash
-uv run careerviet --workspace data jobs list
-uv run careerviet --workspace data jobs show <job_id>
+uv run mocnghe --workspace data jobs list
+uv run mocnghe --workspace data jobs show <job_id>
 ```
 
 Check profile validation and local health:
 
 ```bash
-uv run careerviet --workspace data profile validation
-uv run careerviet --workspace data doctor
+uv run mocnghe --workspace data profile validation
+uv run mocnghe --workspace data doctor
 ```
 
 ## Milestone 3: Profile Onboarding & Grounded Evaluation
@@ -90,20 +109,20 @@ Milestone 3 implements conversational profile onboarding, immutable evidence pro
 Start or resume onboarding questions one at a time:
 
 ```bash
-uv run careerviet --workspace data profile answer --draft-id draft-1 --text "Synthetic candidate, contact private, based in Ha Noi."
+uv run mocnghe --workspace data profile answer --draft-id draft-1 --text "Synthetic candidate, contact private, based in Ha Noi."
 ```
 
 Review draft status and correct specific fields:
 
 ```bash
-uv run careerviet --workspace data profile review --draft-id draft-1
-uv run careerviet --workspace data profile correct --draft-id draft-1 --field preferences --text "Preferences: Ha Noi, remote yes."
+uv run mocnghe --workspace data profile review --draft-id draft-1
+uv run mocnghe --workspace data profile correct --draft-id draft-1 --field preferences --text "Preferences: Ha Noi, remote yes."
 ```
 
 Explicitly confirm draft to store an immutable versioned profile:
 
 ```bash
-uv run careerviet --workspace data profile confirm --draft-id draft-1
+uv run mocnghe --workspace data profile confirm --draft-id draft-1
 ```
 
 ### Deterministic Constraint Triage
@@ -111,7 +130,7 @@ uv run careerviet --workspace data profile confirm --draft-id draft-1
 Check hard constraints (location, compensation floors, engagement type) before spending model evaluation:
 
 ```bash
-uv run careerviet --workspace data evaluate triage <job_id>
+uv run mocnghe --workspace data evaluate triage <job_id>
 ```
 
 ### Dual-Runtime Evaluation
@@ -119,13 +138,13 @@ uv run careerviet --workspace data evaluate triage <job_id>
 Export privacy-redacted evaluation packet (omits candidate identity, binds canonical hashes, requires `--consent`):
 
 ```bash
-uv run careerviet --workspace data evaluate export-packet <job_id> --profile-version <version> --output packet.json --consent
+uv run mocnghe --workspace data evaluate export-packet <job_id> --profile-version <version> --output packet.json --consent
 ```
 
 Import and validate candidate-grounded evaluation report:
 
 ```bash
-uv run careerviet --workspace data evaluate import-report --packet packet.json --response report.json
+uv run mocnghe --workspace data evaluate import-report --packet packet.json --response report.json
 ```
 
 Direct OpenAI-compatible evaluation is also available programmatically via `run_direct_provider_evaluation` with `EvaluationProviderConfig.from_env()`.
@@ -143,11 +162,11 @@ Replace the uppercase placeholders below. Repeat `--evidence` to select multiple
 Omit `--job-id` for a general CV; add it to bind the CV to a stored job.
 
 ```bash
-uv run careerviet --workspace data cv create --profile-version VERSION --evidence EVIDENCE_ID --language vi --identity name
-uv run careerviet --workspace data cv list
-uv run careerviet --workspace data cv review CV_ID
-uv run careerviet --workspace data cv approve CV_ID --hash EXACT_REVIEW_HASH
-uv run careerviet --workspace data cv export CV_ID --output /tmp/new-cv-bundle --max-pages 2
+uv run mocnghe --workspace data cv create --profile-version VERSION --evidence EVIDENCE_ID --language vi --identity name
+uv run mocnghe --workspace data cv list
+uv run mocnghe --workspace data cv review CV_ID
+uv run mocnghe --workspace data cv approve CV_ID --hash EXACT_REVIEW_HASH
+uv run mocnghe --workspace data cv export CV_ID --output /tmp/new-cv-bundle --max-pages 2
 ```
 
 Export contains `cv.pdf` and `cv.json`. Output directories must not already exist, and their
@@ -168,9 +187,9 @@ There is no mandatory photo, DOB, marital status, GitHub or technical-project se
 ### Tailoring and translations
 
 ```bash
-uv run careerviet --workspace data cv export-packet CV_ID --output /tmp/new-tailoring-packet --consent
-uv run careerviet --workspace data cv import-response CV_ID --response response.json
-uv run careerviet cv skill
+uv run mocnghe --workspace data cv export-packet CV_ID --output /tmp/new-tailoring-packet --consent
+uv run mocnghe --workspace data cv import-response CV_ID --response response.json
+uv run mocnghe cv skill
 ```
 
 The packet contains strict instructions, selected claims, target language, optional JD and a
@@ -179,18 +198,18 @@ preserve exact quote/status/uncertainty. Set `mode` to `proposed` when changing 
 a **new unapproved revision**. For manual edits, `cv revise CV_ID --claims claims.json` accepts
 an array of the same claim objects. Re-review and approve the new ID, never the old hash.
 
-Direct-provider mode uses `CAREERVIET_EVAL_ENDPOINT` (complete chat/completions endpoint),
-`CAREERVIET_EVAL_MODEL`, and `CAREERVIET_EVAL_API_KEY` from your securely configured environment:
+Direct-provider mode uses `MOCNGHE_EVAL_ENDPOINT` (complete chat/completions endpoint),
+`MOCNGHE_EVAL_MODEL`, and `MOCNGHE_EVAL_API_KEY` from your securely configured environment:
 
 ```bash
-uv run careerviet --workspace data cv provider CV_ID --consent
+uv run mocnghe --workspace data cv provider CV_ID --consent
 ```
 
 Configure and inspect the destination/model before consenting. Selected evidence/JD leaves the
 device; separate profile identity fields are omitted, **but personal details embedded in quotes
 are not automatically scrubbed**. Review those before export/transmission. Provider output uses
 the same canonical import checks and remains unapproved. HTTPS required; loopback HTTP requires
-`CAREERVIET_EVAL_ALLOW_LOOPBACK_HTTP=1` for local testing. Requests do not follow redirects and
+`MOCNGHE_EVAL_ALLOW_LOOPBACK_HTTP=1` for local testing. Requests do not follow redirects and
 response bytes/time are bounded. No live production provider has been verified for M4; tests
 cover synthetic mocks and a real loopback HTTP server.
 
@@ -200,10 +219,10 @@ Subject and application route must be supplied exactly by the user/from the empl
 The selected approved CV controls language and candidate wording. Drafts do not attach a CV or send anything.
 
 ```bash
-uv run careerviet --workspace data draft create CV_ID --job-id JOB_ID --subject 'EXACT SUBJECT' --route 'EXACT APPLICATION ROUTE' --questions questions.json
-uv run careerviet --workspace data draft review DRAFT_ID
-uv run careerviet --workspace data draft approve DRAFT_ID --hash EXACT_REVIEW_HASH
-uv run careerviet --workspace data draft export DRAFT_ID --output /tmp/new-application-bundle
+uv run mocnghe --workspace data draft create CV_ID --job-id JOB_ID --subject 'EXACT SUBJECT' --route 'EXACT APPLICATION ROUTE' --questions questions.json
+uv run mocnghe --workspace data draft review DRAFT_ID
+uv run mocnghe --workspace data draft approve DRAFT_ID --hash EXACT_REVIEW_HASH
+uv run mocnghe --workspace data draft export DRAFT_ID --output /tmp/new-application-bundle
 ```
 
 `--questions` is optional. Its format is:
@@ -239,16 +258,16 @@ Tracking is explicit and independent of document generation. `apply` **records a
 manually submitted application; it does not send anything**. Commands below return JSON.
 
 ```bash
-uv run careerviet --workspace data track JOB_ID
-uv run careerviet --workspace data track JOB_ID --state shortlisted
-uv run careerviet --workspace data track JOB_ID --state drafting
-uv run careerviet --workspace data track JOB_ID --state ready --cv APPROVED_CV_ID
+uv run mocnghe --workspace data track JOB_ID
+uv run mocnghe --workspace data track JOB_ID --state shortlisted
+uv run mocnghe --workspace data track JOB_ID --state drafting
+uv run mocnghe --workspace data track JOB_ID --state ready --cv APPROVED_CV_ID
 # Only after you have manually submitted that CV:
-uv run careerviet --workspace data apply JOB_ID --cv APPROVED_CV_ID --confirm
-uv run careerviet --workspace data track JOB_ID --state interviewing
-uv run careerviet --workspace data applications list --state interviewing
-uv run careerviet --workspace data applications history JOB_ID
-uv run careerviet applications skill
+uv run mocnghe --workspace data apply JOB_ID --cv APPROVED_CV_ID --confirm
+uv run mocnghe --workspace data track JOB_ID --state interviewing
+uv run mocnghe --workspace data applications list --state interviewing
+uv run mocnghe --workspace data applications history JOB_ID
+uv run mocnghe applications skill
 ```
 
 Allowed transitions:

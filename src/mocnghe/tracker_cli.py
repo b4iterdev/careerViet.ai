@@ -48,7 +48,7 @@ def list_applications(ctx: typer.Context,
 def skill():
     """Print packaged agent instructions without accessing a workspace."""
     from importlib.resources import files
-    typer.echo(files('careerviet.assets.skills').joinpath('track.md').read_text())
+    typer.echo(files('mocnghe.assets.skills').joinpath('track.md').read_text())
 
 
 @applications_app.command('history')

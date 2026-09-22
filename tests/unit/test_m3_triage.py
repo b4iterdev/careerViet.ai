@@ -1,8 +1,8 @@
 # pyright: reportMissingTypeStubs=false
 from datetime import UTC, datetime
 
-from careerviet.models.job import EmploymentType, Job, Salary, SalaryKind, SourceProvenance
-from careerviet.models.profile import (
+from mocnghe.models.job import EmploymentType, Job, Salary, SalaryKind, SourceProvenance
+from mocnghe.models.profile import (
     CandidateEvidence,
     CandidateProfile,
     CompensationFloor,
@@ -11,7 +11,7 @@ from careerviet.models.profile import (
     RankedTarget,
     WorkPreferences,
 )
-from careerviet.triage import triage_job
+from mocnghe.triage import triage_job
 
 
 def test_triage_separates_hard_violations_unknowns_and_conditionals() -> None:

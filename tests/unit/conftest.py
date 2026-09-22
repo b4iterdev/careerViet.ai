@@ -2,8 +2,8 @@ from datetime import UTC, datetime
 
 import pytest
 
-from careerviet.models.profile import CandidateEvidence, CandidateProfile
-from careerviet.storage.repository import CareerRepository
+from mocnghe.models.profile import CandidateEvidence, CandidateProfile
+from mocnghe.storage.repository import CareerRepository
 
 
 @pytest.fixture

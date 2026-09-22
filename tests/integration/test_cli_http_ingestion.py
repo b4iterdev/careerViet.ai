@@ -2,7 +2,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from careerviet.cli import app
+from mocnghe.cli import app
 
 
 def test_cli_http_fixture_search_and_ingest_preserves_manual_commands(tmp_path: Path) -> None:

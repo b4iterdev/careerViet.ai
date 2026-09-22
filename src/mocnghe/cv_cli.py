@@ -133,7 +133,7 @@ def provider(ctx: typer.Context, cv_id: str,
 
 @cv_app.command("skill")
 def skill():
-    typer.echo(files("careerviet.assets").joinpath("skills/tailor.md").read_text())
+    typer.echo(files("mocnghe.assets").joinpath("skills/tailor.md").read_text())
 
 
 @draft_app.command("create")

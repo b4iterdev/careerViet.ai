@@ -15,7 +15,7 @@ from .models.profile import CandidateProfile
 from .storage.repository import CareerRepository
 from .tracker_cli import applications_app, apply, track
 
-app = typer.Typer(no_args_is_help=True)
+app = typer.Typer(no_args_is_help=True, help="Mốc Nghề — local-first career assistant.")
 jobs_app = typer.Typer(no_args_is_help=True)
 profile_app = typer.Typer(no_args_is_help=True)
 evaluate_app = typer.Typer(no_args_is_help=True)

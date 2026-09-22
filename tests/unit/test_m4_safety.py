@@ -4,9 +4,9 @@ from datetime import UTC, datetime
 import pytest
 from pypdf import PdfReader
 
-from careerviet.cv import CVService
-from careerviet.cv_render import export_cv
-from careerviet.models.profile import CandidateEvidence, CandidateProfile
+from mocnghe.cv import CVService
+from mocnghe.cv_render import export_cv
+from mocnghe.models.profile import CandidateEvidence, CandidateProfile
 
 
 def test_missing_glyph_fails_instead_of_corrupt_pdf(repo, tmp_path):
@@ -54,7 +54,7 @@ def test_render_overflow_does_not_publish_and_markup_is_literal(repo, tmp_path):
     ("Thực tập hỗ trợ điều dưỡng; chưa có giấy phép hành nghề.", "credentials"),
 ])
 def test_occupations_and_embedded_font(tmp_path, summary, section):
-    from careerviet.storage.repository import CareerRepository
+    from mocnghe.storage.repository import CareerRepository
     repo = CareerRepository(tmp_path / "workspace")
     repo.save_confirmed_profile(CandidateProfile(profile_id="synthetic", version="v1",
         confirmed_at=datetime.now(UTC), evidence=[CandidateEvidence(evidence_id="e",
@@ -81,8 +81,8 @@ def test_tampered_cv_hash_and_unknown_profile(repo):
 
 
 def test_structural_questions_rejected_before_persistence(repo):
-    from careerviet.application_drafts import ApplicationDraftService
-    from careerviet.ingestion.manual import import_jd_text_with_status
+    from mocnghe.application_drafts import ApplicationDraftService
+    from mocnghe.ingestion.manual import import_jd_text_with_status
     s = CVService(repo)
     cv = s.create("v1", ["ev1"], language="en")
     s.approve(cv.id, s.content_hash(cv))
@@ -93,7 +93,7 @@ def test_structural_questions_rejected_before_persistence(repo):
 
 
 def test_stale_job_blocks_approval(repo):
-    from careerviet.ingestion.manual import import_jd_text_with_status
+    from mocnghe.ingestion.manual import import_jd_text_with_status
     job, _ = import_jd_text_with_status(repo, "Tiêu đề: Synthetic", source_identity="synthetic")
     s = CVService(repo)
     cv = s.create("v1", ["ev1"], language="en", job_id=job.job_id)
@@ -106,8 +106,8 @@ def test_stale_job_blocks_approval(repo):
 def test_provider_failure_no_new_revision(repo):
     import httpx
 
-    from careerviet.cv_runtime import run_provider
-    from careerviet.evaluation_runtime import EvaluationProviderConfig
+    from mocnghe.cv_runtime import run_provider
+    from mocnghe.evaluation_runtime import EvaluationProviderConfig
     s = CVService(repo)
     cv = s.create("v1", ["ev1"], language="en")
     config = EvaluationProviderConfig(endpoint="https://provider.invalid/v1/chat/completions",
@@ -126,8 +126,8 @@ def test_provider_real_loopback_http(repo):
     from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
     from threading import Thread
 
-    from careerviet.cv_runtime import run_provider
-    from careerviet.evaluation_runtime import EvaluationProviderConfig
+    from mocnghe.cv_runtime import run_provider
+    from mocnghe.evaluation_runtime import EvaluationProviderConfig
     s = CVService(repo)
     cv = s.create("v1", ["ev1"], language="en")
     seen = []
@@ -165,8 +165,8 @@ def test_slow_drip_body_cancelled_at_deadline(repo):
 
     import httpx
 
-    from careerviet.cv_runtime import _request_with_deadline
-    from careerviet.evaluation_runtime import EvaluationProviderConfig
+    from mocnghe.cv_runtime import _request_with_deadline
+    from mocnghe.evaluation_runtime import EvaluationProviderConfig
 
     config = EvaluationProviderConfig(
         endpoint="https://provider.invalid/v1/chat/completions",
@@ -212,8 +212,8 @@ def test_partial_export_leaves_no_artefact(repo, tmp_path):
 
 def test_draft_payload_tampering_detected(repo):
     """Altering a draft's content_hash after creation raises on reload."""
-    from careerviet.application_drafts import ApplicationDraftService
-    from careerviet.ingestion.manual import import_jd_text_with_status
+    from mocnghe.application_drafts import ApplicationDraftService
+    from mocnghe.ingestion.manual import import_jd_text_with_status
 
     s = CVService(repo)
     cv = s.create("v1", ["ev1"], language="en")

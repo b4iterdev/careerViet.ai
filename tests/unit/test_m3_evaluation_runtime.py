@@ -4,15 +4,15 @@ from datetime import UTC, datetime
 import httpx
 import pytest
 
-from careerviet.evaluation_runtime import (
+from mocnghe.evaluation_runtime import (
     EvaluationProviderConfig,
     create_evaluation_packet,
     run_direct_provider_evaluation,
     validate_evaluation_response,
 )
-from careerviet.models.job import EmploymentType, Job, Salary, SalaryKind, SourceProvenance
-from careerviet.models.profile import CandidateEvidence, CandidateProfile, EvidenceStatus
-from careerviet.storage.repository import CareerRepository
+from mocnghe.models.job import EmploymentType, Job, Salary, SalaryKind, SourceProvenance
+from mocnghe.models.profile import CandidateEvidence, CandidateProfile, EvidenceStatus
+from mocnghe.storage.repository import CareerRepository
 
 
 def _profile() -> CandidateProfile:
@@ -152,10 +152,10 @@ def test_provider_requires_consent_secure_config_and_does_not_persist_failure(tm
 
     config = EvaluationProviderConfig.from_env(
         {
-            "CAREERVIET_EVAL_ENDPOINT": "http://127.0.0.1:9999/v1/chat/completions",
-            "CAREERVIET_EVAL_MODEL": "mock-model",
-            "CAREERVIET_EVAL_API_KEY": "secret-test-key",
-            "CAREERVIET_EVAL_ALLOW_LOOPBACK_HTTP": "1",
+            "MOCNGHE_EVAL_ENDPOINT": "http://127.0.0.1:9999/v1/chat/completions",
+            "MOCNGHE_EVAL_MODEL": "mock-model",
+            "MOCNGHE_EVAL_API_KEY": "secret-test-key",
+            "MOCNGHE_EVAL_ALLOW_LOOPBACK_HTTP": "1",
         }
     )
     with pytest.raises(PermissionError, match="explicit provider consent"):
@@ -190,10 +190,10 @@ def test_provider_success_roundtrip_persists_report(tmp_path) -> None:
 
     config = EvaluationProviderConfig.from_env(
         {
-            "CAREERVIET_EVAL_ENDPOINT": "http://127.0.0.1:9999/v1/chat/completions",
-            "CAREERVIET_EVAL_MODEL": "mock-model",
-            "CAREERVIET_EVAL_API_KEY": "secret-test-key",
-            "CAREERVIET_EVAL_ALLOW_LOOPBACK_HTTP": "1",
+            "MOCNGHE_EVAL_ENDPOINT": "http://127.0.0.1:9999/v1/chat/completions",
+            "MOCNGHE_EVAL_MODEL": "mock-model",
+            "MOCNGHE_EVAL_API_KEY": "secret-test-key",
+            "MOCNGHE_EVAL_ALLOW_LOOPBACK_HTTP": "1",
         }
     )
 

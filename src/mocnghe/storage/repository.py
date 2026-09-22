@@ -12,6 +12,7 @@ from ..models.profile import CandidateProfile
 class CareerRepository:
     def __init__(self, workspace: str | Path) -> None:
         self.workspace: Path = self._safe_workspace(Path(workspace))
+        # Stable on-disk name: rebranding must reuse existing workspaces, not fork them.
         self.database_path: Path = self.workspace / "careerviet.sqlite3"
         self.profile_path: Path = self.workspace / "profile.json"
 

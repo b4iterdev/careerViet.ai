@@ -2,7 +2,7 @@ import json
 
 from typer.testing import CliRunner
 
-from careerviet.cli import app
+from mocnghe.cli import app
 
 
 def test_packaged_tracking_skill():

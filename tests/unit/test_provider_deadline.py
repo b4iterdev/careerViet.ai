@@ -4,9 +4,9 @@ from threading import Thread
 
 import pytest
 
-from careerviet.cv import CVService
-from careerviet.cv_runtime import run_provider
-from careerviet.evaluation_runtime import EvaluationProviderConfig
+from mocnghe.cv import CVService
+from mocnghe.cv_runtime import run_provider
+from mocnghe.evaluation_runtime import EvaluationProviderConfig
 
 
 @pytest.mark.parametrize("phase", ["headers", "body"])

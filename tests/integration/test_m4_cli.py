@@ -4,9 +4,9 @@ from datetime import UTC, datetime
 from pypdf import PdfReader
 from typer.testing import CliRunner
 
-from careerviet.cli import app
-from careerviet.models.profile import CandidateEvidence, CandidateProfile
-from careerviet.storage.repository import CareerRepository
+from mocnghe.cli import app
+from mocnghe.models.profile import CandidateEvidence, CandidateProfile
+from mocnghe.storage.repository import CareerRepository
 
 
 def test_m4_full_cli(tmp_path):

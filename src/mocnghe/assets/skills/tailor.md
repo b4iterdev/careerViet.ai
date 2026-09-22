@@ -1,6 +1,6 @@
 # M4 grounded CV tailoring
 
-Use `careerviet cv skill` to read these instructions from an installed package.
+Use `mocnghe cv skill` to read these instructions from an installed package.
 
 1. Review a confirmed profile and choose evidence IDs, language and optional stored job.
    `cv create --profile-version VERSION --evidence ID --language en|vi [--job-id ID]`
@@ -25,7 +25,7 @@ Use `careerviet cv skill` to read these instructions from an installed package.
    `cv export ID --output NEW_DIRECTORY --max-pages 2` creates PDF and structured JSON.
    No silent truncation: if it exceeds the budget, create a shorter revision or raise the budget.
 7. For direct providers use `cv provider ID --consent` only after showing configured destination,
-   model and selected evidence/JD categories to the user. CAREERVIET_EVAL_* environment values
+   model and selected evidence/JD categories to the user. MOCNGHE_EVAL_* environment values
    configure it. Never ask for credentials in chat, log secrets, or claim mock tests are live tests.
 8. Local email/form drafts: `draft create CV_ID --job-id JOB_ID --subject EXACT_SUBJECT
    --route EXACT_ROUTE [--questions FILE]`. Questions JSON has `questions` (strings) and `answers`

@@ -3,8 +3,8 @@ import sqlite3
 from pathlib import Path
 from typing import cast
 
-from careerviet.ingestion.manual import import_jd_file, import_jd_text
-from careerviet.storage.repository import CareerRepository
+from mocnghe.ingestion.manual import import_jd_file, import_jd_text
+from mocnghe.storage.repository import CareerRepository
 
 SYNTHETIC_JD = """
 Tiêu đề: Lập trình viên C++/C#

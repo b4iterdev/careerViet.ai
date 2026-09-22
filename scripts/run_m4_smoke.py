@@ -8,12 +8,12 @@ from pathlib import Path
 
 import pymupdf
 
-from careerviet.models.profile import CandidateEvidence, CandidateProfile
-from careerviet.storage.repository import CareerRepository
+from mocnghe.models.profile import CandidateEvidence, CandidateProfile
+from mocnghe.storage.repository import CareerRepository
 
 
 def main():
-    root = Path(tempfile.mkdtemp(prefix="careerviet-m4-demo-"))
+    root = Path(tempfile.mkdtemp(prefix="mocnghe-m4-demo-"))
     workspace = root / "workspace"
     repo = CareerRepository(workspace)
     texts = {
@@ -32,7 +32,7 @@ def main():
     }
     # Exercise the installed console script in separate processes.
     def cli(*args):
-        proc = subprocess.run([str(Path(sys.executable).parent / "careerviet"),
+        proc = subprocess.run([str(Path(sys.executable).parent / "mocnghe"),
                                "--workspace", str(workspace), *args],
                               text=True, capture_output=True, timeout=40, check=False)
         if proc.returncode:

@@ -2,9 +2,9 @@ from pathlib import Path
 
 import httpx
 
-from careerviet.ingestion.http_client import SafeHttpClient
-from careerviet.ingestion.results import IngestionState
-from careerviet.ingestion.source_policy import discover_source_policy
+from mocnghe.ingestion.http_client import SafeHttpClient
+from mocnghe.ingestion.results import IngestionState
+from mocnghe.ingestion.source_policy import discover_source_policy
 
 
 def test_policy_discovery_records_robots_terms_and_allowed_state(tmp_path: Path) -> None:

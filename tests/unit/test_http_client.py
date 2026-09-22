@@ -3,7 +3,7 @@ from pathlib import Path
 import httpx
 import pytest
 
-from careerviet.ingestion.http_client import SafeHttpClient, UnsafeUrlError
+from mocnghe.ingestion.http_client import SafeHttpClient, UnsafeUrlError
 
 
 def test_client_rejects_unsafe_urls(tmp_path: Path) -> None:

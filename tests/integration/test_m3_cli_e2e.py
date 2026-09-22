@@ -4,8 +4,8 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from careerviet.assets import runtime_skill_readme
-from careerviet.cli import app
+from mocnghe.assets import runtime_skill_readme
+from mocnghe.cli import app
 
 
 def test_m3_temp_cli_onboarding_triage_export_import_and_runtime_asset(tmp_path: Path) -> None:

@@ -1,11 +1,11 @@
 import pytest
 
-from careerviet.ingestion.manual import import_jd_text_with_status
+from mocnghe.ingestion.manual import import_jd_text_with_status
 
 
 def test_apply_requires_confirmation_and_preserves_snapshot(repo):
-    from careerviet.applications.tracker import ApplicationTracker
-    from careerviet.cv import CVService
+    from mocnghe.applications.tracker import ApplicationTracker
+    from mocnghe.cv import CVService
     job, _ = import_jd_text_with_status(repo, 'Title: Synthetic tracking job', source_identity='synthetic')
     tracker = ApplicationTracker(repo)
     cvs = CVService(repo)
@@ -35,7 +35,7 @@ def test_apply_requires_confirmation_and_preserves_snapshot(repo):
 def test_application_contract_preserves_submission_after_interview():
     from datetime import UTC, datetime
 
-    from careerviet.models.application import Application
+    from mocnghe.models.application import Application
     recorded = datetime.now(UTC)
     record = Application(job_id="synthetic", state="interviewing", applied_at=recorded,
                          cv_version="cv-synthetic", jd_content_hash="a" * 64)
@@ -43,7 +43,7 @@ def test_application_contract_preserves_submission_after_interview():
 
 
 def test_transitions_persist_and_reject_invalid(repo):
-    from careerviet.applications.tracker import ApplicationTracker
+    from mocnghe.applications.tracker import ApplicationTracker
     job, _ = import_jd_text_with_status(repo, 'Title: Synthetic tracking job', source_identity='synthetic')
     tracker = ApplicationTracker(repo)
     assert tracker.get(job.job_id)['state'] == 'discovered'

@@ -87,7 +87,7 @@ def discover_source_policy(client: SafeHttpClient, observed_url: str) -> SourceR
 def _robots_allows(robots_text: str, observed_url: str) -> bool:
     parser = RobotFileParser()
     parser.parse(robots_text.splitlines())
-    return parser.can_fetch("careerviet-milestone2", observed_url)
+    return parser.can_fetch("mocnghe-milestone2", observed_url)
 
 
 def _acceptable_content_type(url: str, content_type: str) -> bool:

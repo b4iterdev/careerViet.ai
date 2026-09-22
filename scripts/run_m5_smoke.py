@@ -6,13 +6,13 @@ import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 
-from careerviet.cv import CVService
-from careerviet.models.profile import CandidateEvidence, CandidateProfile
-from careerviet.storage.repository import CareerRepository
+from mocnghe.cv import CVService
+from mocnghe.models.profile import CandidateEvidence, CandidateProfile
+from mocnghe.storage.repository import CareerRepository
 
 
 def main():
-    with tempfile.TemporaryDirectory(prefix='careerviet-m5-smoke-') as tmp:
+    with tempfile.TemporaryDirectory(prefix='mocnghe-m5-smoke-') as tmp:
         workspace = Path(tmp)
         repo = CareerRepository(workspace)
         repo.save_confirmed_profile(CandidateProfile(
@@ -21,7 +21,7 @@ def main():
                        summary='Supported synthetic customers.', source='synthetic')]))
 
         def cli(*args, input=None, success=True):
-            proc = subprocess.run([str(Path(sys.executable).with_name('careerviet')),
+            proc = subprocess.run([str(Path(sys.executable).with_name('mocnghe')),
                                    '--workspace', str(workspace), *args],
                                   input=input, capture_output=True, text=True, timeout=20, check=False)
             assert (proc.returncode == 0) == success, proc.stdout + proc.stderr

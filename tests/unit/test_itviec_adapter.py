@@ -2,9 +2,9 @@ from pathlib import Path
 
 import httpx
 
-from careerviet.ingestion.http_client import SafeHttpClient
-from careerviet.ingestion.itviec import parse_itviec_search, search_itviec
-from careerviet.ingestion.results import IngestionState
+from mocnghe.ingestion.http_client import SafeHttpClient
+from mocnghe.ingestion.itviec import parse_itviec_search, search_itviec
+from mocnghe.ingestion.results import IngestionState
 
 
 def test_itviec_fixture_parses_cards_details_nested_sections_and_next_links(tmp_path: Path) -> None:

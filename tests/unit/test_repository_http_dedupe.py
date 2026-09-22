@@ -1,8 +1,8 @@
 from datetime import UTC, datetime
 
-from careerviet.ingestion.results import IngestionState, SourceResult, SourceStats
-from careerviet.ingestion.service import import_source_result
-from careerviet.models.job import (
+from mocnghe.ingestion.results import IngestionState, SourceResult, SourceStats
+from mocnghe.ingestion.service import import_source_result
+from mocnghe.models.job import (
     EmploymentType,
     Job,
     Salary,
@@ -11,7 +11,7 @@ from careerviet.models.job import (
     hash_job_identity,
     job_id_from_hash,
 )
-from careerviet.storage.repository import CareerRepository
+from mocnghe.storage.repository import CareerRepository
 
 
 def _job(title: str, description: str, url: str) -> Job:
