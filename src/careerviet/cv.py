@@ -6,10 +6,14 @@ from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from .models.job import Job
 from .storage.repository import CareerRepository
 
 
 def digest(value: BaseModel) -> str:
+    # Preserve legacy false-flag hashes; workflow metadata is not JD content.
+    if isinstance(value, Job):
+        value = value.model_copy(update={"applied": False})
     return hashlib.sha256(json.dumps(value.model_dump(mode="json"), sort_keys=True,
                                      ensure_ascii=False).encode()).hexdigest()
 

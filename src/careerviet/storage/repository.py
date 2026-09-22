@@ -18,6 +18,8 @@ class CareerRepository:
     def initialize(self) -> None:
         self.workspace.mkdir(parents=True, exist_ok=True)
         with self.connect() as connection:
+            # Serialize schema discovery and ALTERs, including concurrent first use.
+            _ = connection.execute("BEGIN IMMEDIATE")
             _ = connection.execute(
                 """
                 create table if not exists jobs (

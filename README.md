@@ -233,19 +233,72 @@ and application bundle locations. It exercises separate real CLI processes, text
 page count, text bounding boxes, unanswered questions and the unchanged `applied` flag.
 Synthetic examples are demonstrations, not real candidates or job opportunities.
 
+## Milestone 5: Local Application Tracking
+
+Tracking is explicit and independent of document generation. `apply` **records an already
+manually submitted application; it does not send anything**. Commands below return JSON.
+
+```bash
+uv run careerviet --workspace data track JOB_ID
+uv run careerviet --workspace data track JOB_ID --state shortlisted
+uv run careerviet --workspace data track JOB_ID --state drafting
+uv run careerviet --workspace data track JOB_ID --state ready --cv APPROVED_CV_ID
+# Only after you have manually submitted that CV:
+uv run careerviet --workspace data apply JOB_ID --cv APPROVED_CV_ID --confirm
+uv run careerviet --workspace data track JOB_ID --state interviewing
+uv run careerviet --workspace data applications list --state interviewing
+uv run careerviet --workspace data applications history JOB_ID
+uv run careerviet applications skill
+```
+
+Allowed transitions:
+
+| From | To |
+|---|---|
+| discovered | shortlisted, archived |
+| shortlisted | drafting, withdrawn, archived |
+| drafting | ready, shortlisted, withdrawn, archived |
+| ready | drafting, applied, withdrawn, archived |
+| applied | interviewing, offer, rejected, withdrawn, archived |
+| interviewing | offer, rejected, withdrawn, archived |
+| offer | withdrawn, archived |
+| rejected / withdrawn | archived |
+| archived | terminal |
+
+Ready requires a current approved CV for this job (or an untargeted CV). To replace a ready CV,
+return to drafting first. Applied requires the same reviewed selection, unchanged JD, and explicit
+confirmation. Snapshots retain CV revision/hash, profile version and exact JD content. The UTC
+`applied_at` records when confirmation was entered, not independently verified submission time.
+Later outcomes preserve it; `jobs.applied` means ever confirmed applied. History starts with the
+first explicit transition; import's discovered state is the initial baseline. No automatic reopen
+or multiple submission attempts per job in M5.
+
+State, event and applied-flag writes are transactional. Existing application rows are reused;
+ambiguous duplicate legacy rows fail closed without silently deleting records. Snapshot hashes
+catch accidental payload changes, not a malicious local actor rewriting both content and hash.
+Snapshots remain readable after live JD changes. Database migration adds tracking columns/tables
+on first tracking use; back up private workspaces before upgrading.
+
+URL checks reject nonpublic DNS answers (including shared address space) and revalidate redirects.
+They do **not** pin DNS answers to the socket: DNS-rebinding protection is not claimed. Existing
+host allowlists and source restrictions remain; no arbitrary URL ingestion was introduced.
+
+Run the synthetic, separate-process tracking smoke with `uv run python scripts/run_m5_smoke.py`.
+
 ## Current Scope
 
-Milestones 1 through 4 implement:
+Milestones 1 through 5 implement:
 1. Local manual text/file JD import, Pydantic contracts, SQLite persistence with provenance, and stable dedupe.
 2. Bounded public HTTP ingestion for ITviec and VietnamWorks with robots/terms checks and offline fixture modes.
 3. Conversational candidate onboarding, versioned profiles, deterministic triage, and privacy-grounded dual-runtime JD evaluation contracts.
 4. Reviewed CV PDF/JSON bundles, tailoring proposals, and local email/form application drafts.
+5. Explicit local application states, confirmation gates, version snapshots and transition history.
 
 Imported jobs are never automatically marked applied or submitted externally.
 
 ## Limitations
 
-Application tracking, sending, web dashboard, legal calculations and additional source coverage
+Sending, web dashboard, legal calculations and additional source coverage
 remain deferred. The local workspace database is not encrypted at rest; protect its directory
 and backups. Existing ingestion restrictions remain. Automatic translation is not part of the
 extractive path, and generative factual correctness always requires human review.

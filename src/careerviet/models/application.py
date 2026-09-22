@@ -28,6 +28,7 @@ class Application(BaseModel):
     def applied_state_requires_timestamp(self) -> "Application":
         if self.state is ApplicationState.APPLIED and self.applied_at is None:
             raise ValueError("applied applications require applied_at")
-        if self.state is not ApplicationState.APPLIED and self.applied_at is not None:
-            raise ValueError("applied_at is only valid for applied applications")
+        if self.state in {ApplicationState.DISCOVERED, ApplicationState.SHORTLISTED,
+                          ApplicationState.DRAFTING, ApplicationState.READY} and self.applied_at is not None:
+            raise ValueError("pre-submission applications cannot have applied_at")
         return self

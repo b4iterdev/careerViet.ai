@@ -13,6 +13,7 @@ from .ingestion.service import import_source_result
 from .ingestion.vietnamworks import search_vietnamworks
 from .models.profile import CandidateProfile
 from .storage.repository import CareerRepository
+from .tracker_cli import applications_app, apply, track
 
 app = typer.Typer(no_args_is_help=True)
 jobs_app = typer.Typer(no_args_is_help=True)
@@ -23,6 +24,9 @@ app.add_typer(profile_app, name="profile")
 app.add_typer(evaluate_app, name="evaluate")
 app.add_typer(cv_app, name="cv")
 app.add_typer(draft_app, name="draft")
+app.add_typer(applications_app, name="applications")
+app.command("track")(track)
+app.command("apply")(apply)
 
 
 @app.callback()

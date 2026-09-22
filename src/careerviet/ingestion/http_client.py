@@ -196,7 +196,7 @@ class SafeHttpClient:
             raise UnsafeUrlError("DNS resolution returned no addresses")
         for address in addresses:
             ip = ipaddress.ip_address(address)
-            if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast:
+            if not ip.is_global or ip.is_reserved or ip.is_multicast:
                 raise UnsafeUrlError(f"private or local DNS result rejected: {address}")
         return url
 
