@@ -12,6 +12,11 @@ dependencies = [
     "typer>=0.12",
 ]
 
+[project.optional-dependencies]
+browser = [
+    "playwright>=1.40",
+]
+
 [project.scripts]
 mocnghe = "mocnghe.cli:app"
 

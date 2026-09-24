@@ -17,6 +17,7 @@ secrets.*
 .hermes/
 .omo/
 .tmp-smoke/
+pilot/
 AGENTS.md
 specs/
 docs/hermes-review-m2.md

@@ -4,7 +4,7 @@ import json
 from typing import Literal
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .models.job import Job
 from .storage.repository import CareerRepository
@@ -27,6 +27,44 @@ class Claim(BaseModel):
     mode: Literal["extractive", "proposed"] = "extractive"
     uncertainty: str
     status: str
+
+    @field_validator("section", mode="before")
+    @classmethod
+    def _normalize_section(cls, v: object) -> object:
+        if isinstance(v, str):
+            aliases = {
+                "summary": "other",
+                "objective": "other",
+                "profile": "other",
+                "projects": "other",
+                "project": "other",
+                "certifications": "credentials",
+                "certification": "credentials",
+                "certificate": "credentials",
+                "certificates": "credentials",
+                "licenses": "credentials",
+                "license": "credentials",
+                "work_experience": "experience",
+                "work": "experience",
+                "employment": "experience",
+                "academic": "education",
+                "degrees": "education",
+                "skill": "skills",
+                "technical_skills": "skills",
+            }
+            clean = v.strip().lower()
+            return aliases.get(clean, clean)
+        return v
+
+    @field_validator("mode", mode="before")
+    @classmethod
+    def _normalize_mode(cls, v: object) -> object:
+        if isinstance(v, str):
+            clean = v.strip().lower()
+            if clean in {"rewrite", "rewritten", "tailored", "translated"}:
+                return "proposed"
+            return clean
+        return v
 
 
 class CV(BaseModel):

@@ -1,4 +1,5 @@
 import json
+from datetime import UTC
 from pathlib import Path
 from typing import Annotated, cast
 
@@ -53,22 +54,53 @@ def import_jd(
     ctx: typer.Context,
     file: Annotated[Path | None, typer.Option("--file", exists=True, dir_okay=False)] = None,
     stdin: Annotated[bool, typer.Option("--stdin", help="Read JD text from standard input")] = False,
+    url: Annotated[str | None, typer.Option("--url", help="Crawl and import JD directly from URL")] = None,
+    browser: Annotated[bool, typer.Option("--browser", help="Use headless browser for dynamic pages")] = False,
 ) -> None:
-    if file is not None and stdin:
-        typer.echo("--file and --stdin are mutually exclusive", err=True)
+    sources = [s for s in (file is not None, stdin, url is not None) if s]
+    if len(sources) > 1:
+        typer.echo("--file, --stdin, and --url are mutually exclusive", err=True)
         raise typer.Exit(1)
-    if file is None and not stdin:
-        typer.echo("provide exactly one JD source: --file or --stdin", err=True)
+    if not sources:
+        typer.echo("provide exactly one JD source: --file, --stdin, or --url", err=True)
         raise typer.Exit(1)
     repository = repository_from_context(ctx)
     repository.initialize()
     if stdin:
         content = typer.get_text_stream("stdin").read()
         job, created = import_jd_text_with_status(repository, content, source_identity="stdin")
-    else:
-        if file is None:
-            raise RuntimeError("validated import source missing")
+    elif file is not None:
         job, created = import_jd_file_with_status(repository, file)
+    else:
+        assert url is not None
+        from .ingestion.adapters.registry import fetch_job_from_url
+
+        try:
+            crawled_job = fetch_job_from_url(url, use_browser=browser, timeout_seconds=15.0)
+        except Exception as err:
+            typer.echo(f"Crawl failed: {err}", err=True)
+            raise typer.Exit(1) from err
+        raw_content = crawled_job.freeform_text or (
+            f"Tiêu đề: {crawled_job.title}\n"
+            f"Công ty: {crawled_job.employer}\n"
+            f"Địa điểm: {crawled_job.location}\n"
+            f"{crawled_job.description}"
+        )
+        if crawled_job.content_hash is None or crawled_job.job_id is None:
+            from .models.job import hash_job_identity, job_id_from_hash
+
+            computed_hash = hash_job_identity(raw_content)
+            crawled_job = crawled_job.model_copy(update={
+                "content_hash": computed_hash,
+                "job_id": job_id_from_hash(computed_hash),
+            })
+        source_identity = str(crawled_job.source.original_url or crawled_job.source.original_uri)
+        job, created = repository.upsert_job(
+            crawled_job,
+            source_identity=source_identity,
+            raw_content=raw_content,
+            dedupe_by_source_identity=True,
+        )
     status = "imported" if created else "existing"
     typer.echo(f"{status} {job.job_id} {job.title}")
 
@@ -147,6 +179,48 @@ def jobs_ingest(
     typer.echo(f"imported: {summary.imported}")
     typer.echo(f"existing: {summary.existing}")
     typer.echo(f"skipped: {summary.skipped}")
+
+
+@jobs_app.command("crawl")
+def jobs_crawl(
+    ctx: typer.Context,
+    url: str,
+    browser: Annotated[bool, typer.Option("--browser", help="Use headless browser for dynamic pages")] = False,
+) -> None:
+    """Crawl a job posting directly from URL using site adapters or headless browser."""
+    repository = repository_from_context(ctx)
+    repository.initialize()
+    from .ingestion.adapters.registry import fetch_job_from_url
+
+    try:
+        crawled_job = fetch_job_from_url(url, use_browser=browser, timeout_seconds=15.0)
+    except Exception as err:
+        typer.echo(f"Crawl failed: {err}", err=True)
+        raise typer.Exit(1) from err
+
+    raw_content = crawled_job.freeform_text or (
+        f"Tiêu đề: {crawled_job.title}\n"
+        f"Công ty: {crawled_job.employer}\n"
+        f"Địa điểm: {crawled_job.location}\n"
+        f"{crawled_job.description}"
+    )
+    if crawled_job.content_hash is None or crawled_job.job_id is None:
+        from .models.job import hash_job_identity, job_id_from_hash
+
+        computed_hash = hash_job_identity(raw_content)
+        crawled_job = crawled_job.model_copy(update={
+            "content_hash": computed_hash,
+            "job_id": job_id_from_hash(computed_hash),
+        })
+    source_identity = str(crawled_job.source.original_url or crawled_job.source.original_uri)
+    job, created = repository.upsert_job(
+        crawled_job,
+        source_identity=source_identity,
+        raw_content=raw_content,
+        dedupe_by_source_identity=True,
+    )
+    status = "imported" if created else "existing"
+    typer.echo(f"{status} {job.job_id} {job.title}")
 
 
 def _run_source_search(
@@ -279,6 +353,32 @@ def profile_confirm(
 
     session = ProfileOnboarding.resume(repository, draft_id)
     profile = session.confirm(confirmed_by=author)
+    typer.echo(f"confirmed profile {profile.profile_id} version={profile.version}")
+
+
+@profile_app.command("confirm-file")
+def profile_confirm_file(
+    ctx: typer.Context,
+    author: Annotated[str, typer.Option("--author", help="Who confirmed")] = "candidate",
+) -> None:
+    """Read workspace profile.json, set confirmed_at, and save to the DB."""
+    from datetime import datetime
+
+    repository = repository_from_context(ctx)
+    repository.initialize()
+    profile_path = repository.workspace / "profile.json"
+    if not profile_path.exists():
+        typer.echo("No profile.json found in workspace.", err=True)
+        raise typer.Exit(1)
+    try:
+        profile_data = cast(object, json.loads(profile_path.read_text(encoding="utf-8")))
+        profile = CandidateProfile.model_validate(profile_data)
+    except (json.JSONDecodeError, ValidationError) as error:
+        typer.echo("profile: invalid", err=True)
+        typer.echo(str(error), err=True)
+        raise typer.Exit(1) from error
+    profile = profile.model_copy(update={"confirmed_at": datetime.now(UTC)})
+    repository.save_confirmed_profile(profile)
     typer.echo(f"confirmed profile {profile.profile_id} version={profile.version}")
 
 

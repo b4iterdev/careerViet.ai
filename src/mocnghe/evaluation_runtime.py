@@ -243,11 +243,82 @@ def run_direct_provider_evaluation(
 def _requirements_from_job(job: Job) -> list[PacketRequirement]:
     lines = [line.strip(" -•\t") for line in job.requirements.splitlines() if line.strip()]
     if not lines or lines == ["unknown"]:
-        lines = [job.requirements]
+        # Fallback: extract from freeform_text via heading-based bullet parser
+        extracted = _extract_requirements_from_freeform(job.freeform_text)
+        if extracted:
+            return [
+                PacketRequirement(requirement_id=f"req_{i:03d}", text=text, required_status=status)
+                for i, (text, status) in enumerate(extracted, start=1)
+            ]
+        return [PacketRequirement(requirement_id="req_001", text="unknown")]
     return [
         PacketRequirement(requirement_id=f"req_{index:03d}", text=line)
         for index, line in enumerate(lines, start=1)
     ]
+
+
+# Heading keywords that signal a requirements section and their required_status.
+_REQUIRED_HEADINGS = (
+    # English
+    "required qualifications", "required skills", "requirements", "what you need",
+    "what we need", "must have", "minimum qualifications", "basic qualifications",
+    # Vietnamese
+    "yêu cầu", "yeu cau", "kỹ năng yêu cầu",
+)
+_PREFERRED_HEADINGS = (
+    # English
+    "good to have", "nice to have", "preferred", "bonus", "plus", "desired",
+    "not required", "optional", "preferred qualifications",
+    # Vietnamese
+    "ưu tiên", "uu tien", "có thêm",
+)
+# Headings that end the requirements zone — we stop collecting here.
+_STOP_HEADINGS = (
+    "what we offer", "what we'll teach", "learning opportunities",
+    "technology stack", "tech stack", "benefits", "phúc lợi", "phuc loi",
+    "chúng tôi cung cấp", "chung toi cung cap", "we offer",
+)
+
+
+def _extract_requirements_from_freeform(text: str) -> list[tuple[str, Literal["required", "preferred", "unknown"]]]:
+    """Return (bullet_text, required_status) pairs from freeform JD text."""
+    if not text or not text.strip():
+        return []
+
+    results: list[tuple[str, Literal["required", "preferred", "unknown"]]] = []
+    current_status: Literal["required", "preferred", "unknown"] | None = None
+
+    for raw_line in text.splitlines():
+        stripped = raw_line.strip()
+        lower = stripped.lower().rstrip(":").strip()
+
+        # Detect heading transitions
+        if _matches_any(lower, _STOP_HEADINGS):
+            current_status = None
+            continue
+        if _matches_any(lower, _PREFERRED_HEADINGS):
+            current_status = "preferred"
+            continue
+        if _matches_any(lower, _REQUIRED_HEADINGS):
+            current_status = "required"
+            continue
+
+        # Collect bullet items within a requirements section
+        if current_status is not None and _is_bullet(stripped):
+            item = stripped.lstrip("-•*·▪▸ \t").strip()
+            if item:
+                results.append((item, current_status))
+
+    return results
+
+
+def _matches_any(lower_stripped: str, keywords: tuple[str, ...]) -> bool:
+    return any(kw in lower_stripped for kw in keywords)
+
+
+def _is_bullet(line: str) -> bool:
+    """True for lines that start with a bullet marker or a dash."""
+    return bool(line) and (line[0] in "-•*·▪▸" or (line[0] == " " and line.lstrip().startswith(("-", "•"))))
 
 
 def _profile_content_hash(profile: CandidateProfile) -> str:
